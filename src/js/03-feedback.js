@@ -1,4 +1,5 @@
 import throttle from 'lodash.throttle';
+
 const form = document.querySelector('.feedback-form');
 const inputEL = form.querySelector('input');
 const messageEl = form.querySelector('textarea');
@@ -10,8 +11,13 @@ let elements = {};
 form.addEventListener(
   'input',
   throttle(event => {
-    elements[event.target.name] = event.target.value;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(elements));
+    if (event.target.name === 'message' && event.target.value !== '') {
+      elements.message = event.target.value;
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ ...elements }));
+    } else if (event.target.name === 'email' && event.target.value !== '') {
+      elements.email = event.target.value;
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ ...elements }));
+    }
   }, 500)
 );
 
@@ -27,12 +33,11 @@ form.addEventListener('submit', event => {
   alert('ПОРОЖНЄ ПОЛЕ');
 });
 
-console.log('storage', JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)));
-
 function textForm() {
   const storage = localStorage.getItem(LOCAL_STORAGE_KEY);
   if (storage) {
     const { email, message } = JSON.parse(storage);
+    elements = { email, message };
     inputEL.value = email || '';
     messageEl.value = message || '';
   }
